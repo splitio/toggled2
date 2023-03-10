@@ -12,7 +12,7 @@ brew install git
 ```
 ... on any OSX terminal.
 
-You will be cloning the node.js repository locally, installing its dependencies, and creating a ZIP archive for upload to AWS.  On AWS, you'll make a new lambda and upload your zip to define it.  Then you'll create a functional URL to reach it. Replace the index.html functional url with your new one to  finish the installation.
+You will be cloning the node.js repository locally, installing its dependencies, and creating a ZIP archive for upload to AWS.  On AWS, you'll make a new lambda and upload your zip to define it.  Then you'll create a functional URL to reach it.  Replace the index.html functional url with your new one to  finish the installation.
 
 ## Installing
 
@@ -20,41 +20,31 @@ From the OSX command line (other platforms will be virtually the same), make a n
 
 ```bash
 git clone <copy link to the repository from github>.git
-cd 
-vi SPLIT_ADMIN_API_KEY
+cd toggled2
+vi SPLIT_ADMIN_API_KEY // paste your Split Admin API key, with no extra characters or lines
 npm install 
-zip -r split2mixpanel.zip .
+zip -r toggled2.zip .
 ```
 
-In AWS, create a new lambda called split2mixpanel.  Using the code interface, upload the split2mixpanel.zip you just created.
+In AWS, create a new lambda called toggled.  Using the code interface, upload the toggled2.zip you just created.
 
-Your lambda is ready for action, but needs an REST API gateway.  In AWS, build a new REST API.  Give it a POST method and link it to your lambda.  Check the box 'Use Lambda Proxy Integration'.
+Your lambda is ready for action, but needs a function URL, and a change in configuration.
 
-![alt text](http://www.cortazar-split.com/lambda_proxy.png)
+First, change the general configuration time limit to five minutes.  The lambda can take several minutes to run when there are hundreds of splits.
 
-Deploy the POST method and copy the URL, which will look something like this:
+Second, create the functional GET URL.  Enable CORS and give the Allow Headers field a *
+Copy the functional URL into the index.html (which you can open locally in your browser, or post seomwhere else).
 
-https://ygp1r7dssxx.execute-api.us-west-2.amazonaws.com/prod
- 
-## Base64 encode your MixPanel secret
-
-Go to https://codebeautify.org/base64-encode
-
-Put your Mixpanel secret into the Base64 Encode entry area and hit the button to Base64 encode.
-
-Now create a url.  Start with the API gateway url from the next step, and add a query parameter with your encoded secret:
-
+Line 53 or therabouts...
 ```
-https://ygp1r7cna6.execute-api.us-west-2.amazonaws.com/prod?m=MjI0OTc5YThmY2MyM2MyNjI0OTAyNjgxYmY5YzIwNmU=
+url: 'https://64qqfffcsblvfoo.lambda-url.us-west-2.on.aws/',
 ```
+Swap in your own URL.
 
-## Configure a Split Impressions webhook
+If the lambda is installed properly, you can cut-and-paste the functional URL into your browser and get an error response.
 
-From Split's Admin Settings and Integrations, find and create an Impressions webhook for the workspace and environments you want to integrate.
+Use the index.html in your browser to provide workspace, environment, and traffic key params.:w
 
-For the URL, use the URL you just created.
-
-The test button should come back a success.  If not, consult the author.
 
 ## Author
 
