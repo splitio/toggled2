@@ -1,0 +1,189 @@
+<html>
+<head>
+  <style>
+    h1 {
+      font-family: Helvetica, Charcoal, sans serif;
+      font-size: 60px;
+      color: black;
+      background-color: white;
+  </style>
+   <style>
+      html, body {
+         background: black;
+        font-family: "Open Sans",sans-serif;
+      }
+      
+      .root {
+      }
+
+      .split {
+        height: 48px;
+        line-height: 48px;
+        width: 48px;
+        height: 48px;
+        text-align: center;
+        font-family: sans-serif;
+        font-size: 14;
+        color: white;
+        outline: solid 1px black;
+      }
+
+      ul {
+         padding: 0px;         
+    }
+
+    li {
+        display: inline-block;
+        vertical-align: top;
+    }
+   </style>  
+  <title>Sample Split Express Interface</title>
+   <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script>
+  function run() {
+    let formData = {
+        workspaceName: document.getElementById("workspaceName").value,
+        environmentName: document.getElementById("environmentName").value,    
+        trafficKey: document.getElementById("trafficKey").value
+    };
+
+    console.log(formData);
+    $.ajax({
+        type: "GET",
+        url: 'https://64qqfffcsblvk3t7g2tbxuz5bu0aamke.lambda-url.us-west-2.on.aws/',
+        data: formData,
+        headers:{'Content-Type': 'application/json'},
+        success: function(response){
+          console.log(response);
+          document.getElementById("runButton").disabled = false;
+          document.getElementById("runButton").innerHTML = 'Run';
+          drawSplits(response);
+        },
+        error: function(error) {
+          console.log(error);
+          alert(error.statusText + ': ' + error.responseText + ' (' + error.status + ')');
+          console.log(error);
+          document.getElementById("runButton").disabled = false;
+          document.getElementById("runButton").innerHTML = 'Run';
+        },
+        dataType: "json",
+        contentType : "application/json"
+    });  
+  }
+
+  function drawSplits(splits) {
+    let table = document.getElementById('splits-table');
+    removeAllChildNodes(table);    
+    let thr = document.createElement("tr");
+
+    let th = document.createElement("th");
+    th.className = "split";
+    th.appendChild(document.createTextNode("name"));       
+    thr.appendChild(th);
+
+    th = document.createElement("th");
+    th.className = "split";
+    th.appendChild(document.createTextNode("treatment"));       
+    thr.appendChild(th);
+
+    th = document.createElement("th");
+    th.className = "split";
+    th.appendChild(document.createTextNode("treatments"));       
+    thr.appendChild(th);
+
+    th = document.createElement("th");
+    th.className = "split";
+    th.appendChild(document.createTextNode("trafficType"));       
+    thr.appendChild(th);
+
+    th = document.createElement("th");
+    th.className = "split";
+    th.appendChild(document.createTextNode("trafficAllocation"));       
+    thr.appendChild(th);
+
+    th = document.createElement("th");
+    th.className = "split";
+    th.appendChild(document.createTextNode("killed"));       
+    thr.appendChild(th);
+
+    th = document.createElement("th");
+    th.className = "split";
+    th.appendChild(document.createTextNode("default rule"));       
+    thr.appendChild(th);
+
+    table.appendChild(thr);
+
+    for(const split of splits) {
+      let tr = document. createElement("tr");
+      let td = document.createElement("td");
+      td.className = "split";
+      td.appendChild(document.createTextNode(split.name));       
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "split";
+      td.appendChild(document.createTextNode(JSON.stringify(split.treatment)));       
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "split";
+      td.appendChild(document.createTextNode(JSON.stringify(split.treatments, null, 2)));       
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "split";
+      td.appendChild(document.createTextNode(JSON.stringify(split.trafficType)));       
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "split";
+      td.appendChild(document.createTextNode(JSON.stringify(split.trafficAllocation)));       
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "split";
+      td.appendChild(document.createTextNode(JSON.stringify(split.killed)));       
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "split";
+      td.appendChild(document.createTextNode(JSON.stringify(split.defaultRule, null, 2)));       
+      tr.appendChild(td);
+
+      table.appendChild(tr);            
+    }
+  }
+
+  function removeAllChildNodes(parent) {
+      while (parent.firstChild) {
+          parent.removeChild(parent.firstChild);
+      }
+  }
+
+</script>
+</head>
+<body>
+  <h1>Toggled!</h1>
+  <img src="https://nt.global.ssl.fastly.net/binaries/content/gallery/website/national/regions/northern-ireland/places/giants-causeway/library/basalt-columns-giants-causeway-northern-ireland-180255.jpg" style="width: 40%"/>
+<table>
+<tr>
+  <td style="color: gray;">Workspace Name</td>
+  <td><input id="workspaceName" value="Default"></td>
+</tr>
+<tr>
+  <td style="color: gray;">Environment Name</td>
+  <td><input id="environmentName" value="Prod-Default"/></td>
+</tr>
+<tr>
+  <td style="color: gray;">Traffic Key</td>
+  <td><input id="trafficKey" value="placeholder"/></td>
+</tr>
+<tr>
+  <td colspan="2"><button id="runButton" onclick="this.disabled=true; this.innerHTML='Running...'; run()">Run</button></td>
+</tr>
+</table>
+<div class="root">
+   <table border="1" id="splits-table"/>
+</div>
+</body>
+</html>
