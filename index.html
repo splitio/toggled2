@@ -40,14 +40,18 @@
   <title>Sample Split Express Interface</title>
    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script>
+  function getFormData() {
+    const form = {
+      workspaceName: document.getElementById("workspaceName").value,
+      environmentName: document.getElementById("environmentName").value,    
+      trafficKey: document.getElementById("trafficKey").value
+    }
+    return form;
+  }
   function run() {
-    let formData = {
-        workspaceName: document.getElementById("workspaceName").value,
-        environmentName: document.getElementById("environmentName").value,    
-        trafficKey: document.getElementById("trafficKey").value
-    };
+    let formData = getFormData();
 
-    console.log(formData);
+    // console.log(formData);
     $.ajax({
         type: "GET",
         url: 'https://64qqfffcsblvk3t7g2tbxuz5bu0aamke.lambda-url.us-west-2.on.aws/',
@@ -127,7 +131,29 @@
 
       td = document.createElement("td");
       td.className = "split";
-      td.appendChild(document.createTextNode(JSON.stringify(split.treatments, null, 2)));       
+      // td.appendChild(document.createTextNode(JSON.stringify(split.treatments, null, 2)));       
+      let treatments = [];
+      let keys = [];
+      let segments = [];
+      for(const treatment of split.treatments) {
+        treatments.push(treatment.name);
+        if(treatment.keys) {
+          for(const key of treatment.keys) {
+            keys.push(key);
+          }
+        }
+        if(treatment.segments) {
+          for(const segment of treatment.segments) {
+            segments.push(segment);
+          }
+        }
+      }
+      let treatmentSelector = document.createElement('select');
+      drawItems(treatments, treatmentSelector);
+      treatmentSelector.onchange = function() { changeDefaultTreatment(split.name, 
+        treatmentSelector.options[treatmentSelector.selectedIndex].text); }
+      treatmentSelector.value = split.treatment;
+      td.appendChild(treatmentSelector);
       tr.appendChild(td);
 
       td = document.createElement("td");
@@ -147,11 +173,78 @@
 
       td = document.createElement("td");
       td.className = "split";
-      td.appendChild(document.createTextNode(JSON.stringify(split.defaultRule, null, 2)));       
+      let defaultTreatments = [];
+      console.log(split.defaultRule);
+      for(const defaultTreatment of split.defaultRule) {
+        defaultTreatments.push({name: defaultTreatment.treatment, size: defaultTreatment.size});
+      }
+      console.log('defaultTreatments: ');
+      console.log(defaultTreatments);
+      let prettyTreatments = '';
+      for(const t of defaultTreatments) {
+        prettyTreatments += t.name + '->' + t.size + '; '
+      }
+      prettyTreatments = prettyTreatments.substring(0, prettyTreatments.lastIndexOf('; '));
+      console.log('prettyTreatments: ' + prettyTreatments);
+      td.appendChild(document.createTextNode(prettyTreatments));       
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      let button = document.createElement("button");
+      button.innerHTML = "delete " + split.name;
+      button.onclick = function() { deleteSplit(split.name); }
+      td.appendChild(button);
       tr.appendChild(td);
 
       table.appendChild(tr);            
     }
+  }
+
+  function changeDefaultTreatment(splitName, treatment) {
+    console.log('changeDefaultTreatment ' + splitName);
+    const data = getFormData();
+    data.splitName = splitName;
+    data.treatment = treatment;
+    console.log(data);
+
+     $.ajax({
+        type: "POST",
+        url: 'https://r7uftqox2mxcgfgfvwev3bg2pi0pvekg.lambda-url.us-west-2.on.aws/',
+        data: data,
+        headers:{'Content-Type': 'application/json'},
+        success: function(response){
+          console.log(response);
+          // alert(response);
+        },
+        error: function(error) {
+          console.log(error);
+          alert(error.statusText + ': ' + error.responseText + ' (' + error.status + ')');          
+        },
+        dataType: "json",
+        contentType : "application/json"
+    });      
+  }
+
+  function deleteSplit(name) {
+    console.log('delete split ' + name);
+    const data = getFormData();
+    data.splitName = name;
+    $.ajax({
+        type: "POST",
+        url: 'https://as55tsgfrujcfkft6aj6xzziaa0eavhf.lambda-url.us-west-2.on.aws/',
+        data: data,
+        headers:{'Content-Type': 'application/json'},
+        success: function(response){
+          console.log(response);
+          alert(response);
+        },
+        error: function(error) {
+          console.log(error);
+          alert(error.statusText + ': ' + error.responseText + ' (' + error.status + ')');          
+        },
+        dataType: "json",
+        contentType : "application/json"
+    });     
   }
 
   function removeAllChildNodes(parent) {
@@ -160,6 +253,14 @@
       }
   }
 
+  function drawItems(list, selectInput) {
+    let options = '<optgroup>';
+    for(const option of list) {
+      options += '<option>' + option + '</option>';
+    }
+    options += '</optgroup>';
+    selectInput.innerHTML = options;
+  }
 </script>
 </head>
 <body>

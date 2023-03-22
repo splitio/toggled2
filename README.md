@@ -1,5 +1,6 @@
 # TOGGLED
 
+<<<<<<< HEAD
 Create a dashboard table depicting all splits in an environment, one to each row.  Include deep detail about the treatments and default rule.  Evaluate and display the treatment returned for a particular traffic key.
 
 # Pre-requisites
@@ -45,6 +46,9 @@ If the lambda is installed properly, you can cut-and-paste the functional URL in
 
 Use the index.html in your browser to provide workspace, environment, and traffic key params.:w
 
+=======
+Create a dashboard table depicting all splits in an environment, one to each row.  Include deep detail about the treatments and default rule.  Evaluate and display the treatment returned for a particular traffic key.  Toggle the treatments to the default rule.  Delete a split.
+>>>>>>> 6f6d265 (working toggles)
 
 ## Author
 
