@@ -37,7 +37,7 @@
         vertical-align: top;
     }
    </style>  
-  <title>Sample Split Express Interface</title>
+  <title>Toggled by Split!</title>
    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script>
   function getFormData() {
@@ -48,6 +48,52 @@
     }
     return form;
   }
+  $(document).ready(() => {
+    let workspaces = [];
+    $.ajax({
+      type: 'get',
+      url: 'https://6eebgee67uvsqg45g2kxtsmsry0tmitm.lambda-url.us-west-2.on.aws/',
+      headers:{'Content-Type': 'application/json'},
+      success: function(response) {
+        // console.log(response);
+        for(const workspace of response) {
+          // console.log(workspace.name);
+          workspaces.push(workspace.name);
+        }
+        // console.log('drawItems');
+        drawItems(workspaces, document.getElementById('workspaceName'));
+        drawEnvironments();
+      },
+      error: function(error) {
+        console.log(error);
+        alert(error.statusText + ': ' + error.responseText + ' (' + error.status + ')');
+      }
+    });
+  });
+
+  function drawEnvironments() {
+    // console.log('getting environments');
+    const e = document.getElementById("workspaceName");
+    // console.log(e);
+    const workspaceName = e.options[e.selectedIndex].text;
+    let environments = [];
+    $.ajax({
+      type: 'get',
+      url: 'https://5duecdpn4dnosjjekyxyhxsywe0rxnbe.lambda-url.us-west-2.on.aws/?workspaceName=' + workspaceName,
+      headers:{'Content-Type': 'application/json'},
+      success: function(response) {
+        for(const environment of response) {
+          environments.push(environment.name);
+        }
+        drawItems(environments, document.getElementById('environmentName'));
+      },
+      error: function(error) {
+        console.log(error);
+        alert(error.statusText + ': ' + error.responseText + ' (' + error.status + ')');
+      }
+    });    
+  }
+
   function run() {
     let formData = getFormData();
 
@@ -269,11 +315,11 @@
 <table>
 <tr>
   <td style="color: gray;">Workspace Name</td>
-  <td><input id="workspaceName" value="Default"></td>
+  <td><select id="workspaceName" onchange="drawEnvironments()"></td>
 </tr>
 <tr>
   <td style="color: gray;">Environment Name</td>
-  <td><input id="environmentName" value="Prod-Default"/></td>
+  <td><select id="environmentName"/></td>
 </tr>
 <tr>
   <td style="color: gray;">Traffic Key</td>
